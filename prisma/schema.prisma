@@ -1,0 +1,177 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  fullName  String
+  email     String   @unique
+  password  String
+  role      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Room {
+  id           Int           @id @default(autoincrement())
+  roomNumber   String        @unique
+  roomType     String
+  status       String
+  floor        Int
+  price        Float
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  reservations Reservation[]
+}
+
+model Reservation {
+  id         Int      @id @default(autoincrement())
+  guestName  String
+  guestEmail String
+  checkIn    DateTime
+  checkOut   DateTime
+  status     String
+
+  roomId Int
+  room   Room @relation(fields: [roomId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Housekeeping {
+  id         Int      @id @default(autoincrement())
+  roomNumber String
+  task       String
+  status     String
+  assignedTo String
+  createdAt  DateTime @default(now())
+}
+
+model Billing {
+  id          Int      @id @default(autoincrement())
+  guestName   String
+  amount      Float
+  paymentMode String
+  status      String
+  createdAt   DateTime @default(now())
+}
+
+model Guest {
+  id        Int      @id @default(autoincrement())
+  fullName  String
+  email     String   @unique
+  phone     String
+  createdAt DateTime @default(now())
+}
+
+model Property {
+  id          Int     @id @default(autoincrement())
+  name        String
+  location    String
+  description String?
+
+  roomTypes RoomType[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RoomType {
+  id       Int    @id @default(autoincrement())
+  name     String
+  baseRate Float
+
+  propertyId Int
+  property   Property @relation(fields: [propertyId], references: [id])
+
+  rooms     HotelRoom[]
+  ratePlans RatePlan[]
+
+  createdAt DateTime @default(now())
+}
+
+model HotelRoom {
+  id         Int    @id @default(autoincrement())
+  roomNumber String @unique
+  status     String
+  floor      Int
+
+  roomTypeId Int
+  roomType   RoomType @relation(fields: [roomTypeId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model RatePlan {
+  id   Int    @id @default(autoincrement())
+  name String
+  rate Float
+
+  roomTypeId Int
+  roomType   RoomType @relation(fields: [roomTypeId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model RoomBlock {
+  id        Int    @id @default(autoincrement())
+  eventName String
+  roomsHeld Int
+
+  createdAt DateTime @default(now())
+}
+
+model Folio {
+  id            Int    @id @default(autoincrement())
+  reservationId Int    @unique
+  balance       Float
+  status        String
+
+  createdAt DateTime @default(now())
+}
+
+model FolioLine {
+  id          Int    @id @default(autoincrement())
+  folioId     Int
+  description String
+  amount      Float
+
+  createdAt DateTime @default(now())
+}
+
+model Payment {
+  id        Int      @id @default(autoincrement())
+  folioId   Int
+  amount    Float
+  method    String
+  createdAt DateTime @default(now())
+}
+
+model Engineer {
+  id              Int      @id @default(autoincrement())
+  name            String
+  role            String
+  shift           String
+  status          String
+  activeTaskCount Int      @default(0)
+  createdAt       DateTime @default(now())
+}
+
+model WorkOrder {
+  id                   Int      @id @default(autoincrement())
+  roomNumber           String
+  issueType            String
+  description          String
+  priority             String
+  status               String
+  assignedEngineerId   String?
+  assignedEngineerName String?
+  dateCreated          DateTime @default(now())
+  dateCompleted        DateTime?
+}
