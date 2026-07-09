@@ -1,46 +1,63 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  Put,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe } from '@nestjs/common';
 import { HousekeepingService } from './housekeeping.service';
-import { CreateHousekeepingDto } from './dto/create-housekeeping.dto';
 
 @Controller('housekeeping')
 export class HousekeepingController {
-  constructor(private readonly service: HousekeepingService) {}
+  constructor(private readonly housekeepingService: HousekeepingService) {}
 
-  @Post()
-  create(@Body() dto: CreateHousekeepingDto) {
-    return this.service.create(dto);
+  // --- STAFF ---
+  @Get('staff')
+  async getAllStaff() {
+    return this.housekeepingService.getAllStaff();
   }
 
-  @Get()
-  findAll() {
-    return this.service.findAll();
+  @Post('staff')
+  async createStaff(@Body() data: any) {
+    return this.housekeepingService.createStaff(data);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.service.findOne(Number(id));
+  @Put('staff/:id')
+  async updateStaff(@Param('id', ParseIntPipe) id: number, @Body() data: any) {
+    return this.housekeepingService.updateStaff(id, data);
   }
 
-  @Put(':id')
-  update(
-    @Param('id') id: string, 
-    
-    @Body() dto: CreateHousekeepingDto,
+  @Delete('staff/:id')
+  async deleteStaff(@Param('id', ParseIntPipe) id: number) {
+    return this.housekeepingService.deleteStaff(id);
+  }
+
+  // --- TASKS & ROOMS ---
+  @Get('rooms/eligible')
+  async getEligibleRooms() {
+    return this.housekeepingService.getEligibleRooms();
+  }
+
+  @Get('tasks')
+  async getAllTasks() {
+    return this.housekeepingService.getAllTasks();
+  }
+
+  @Post('tasks')
+  async createTask(@Body() data: any) {
+    return this.housekeepingService.createTask(data);
+  }
+
+  @Put('tasks/:id/status')
+  async updateTaskStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() payload: { status: string; actionData?: any }
   ) {
-    return this.service.update(Number(id), 
-    dto);
+    return this.housekeepingService.updateTaskStatus(id, payload.status, payload.actionData);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.service.remove(Number(id));
+  // --- ANALYTICS & DASHBOARD ---
+  @Get('dashboard')
+  async getDashboardMetrics() {
+    return this.housekeepingService.getDashboardMetrics();
+  }
+
+  @Get('analytics')
+  async getAnalytics() {
+    return this.housekeepingService.getAnalytics();
   }
 }

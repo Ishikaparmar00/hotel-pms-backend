@@ -9,12 +9,169 @@ datasource db {
 
 model User {
   id        Int      @id @default(autoincrement())
-  fullName  String
+  firstName String?
+  lastName  String?
+  fullName  String?
   email     String   @unique
-  password  String
-  role      String
+  phone     String?
+  password  String   // Password Hash
+  role      String?  // Keeping this for backwards compatibility
+  
+  // Relations to new Role system
+  roleId    Int?
+  userRole  Role?    @relation(fields: [roleId], references: [id])
+  
+  employeeId   String?
+  username     String?  @unique
+  department   String?
+  mobileNumber String?
+  status       String   @default("Pending") // Changed to Pending for email verification
+  lastLogin    DateTime?
+  companyName  String?
+  hotelName    String?
+  country      String?
+  city         String?
+
+  gender       String?
+  dateOfBirth  DateTime?
+  designation  String?
+  joiningDate  DateTime?
+  profilePhoto String?
+  createdBy    Int?
+  updatedBy    Int?
+
+  failedLoginAttempts Int @default(0)
+  lockoutUntil        DateTime?
+
+  // Incident Relations
+  reportedIncidents   Incident[] @relation("IncidentReporter")
+  assignedIncidents   Incident[] @relation("IncidentEngineer")
+  securityIncidents   Incident[] @relation("IncidentSecurity")
+  incidentStatusLogs  IncidentStatusHistory[]
+  incidentCosts       IncidentCost[]
+  incidentAudits      IncidentAuditLog[]
+  incidentImages      IncidentImage[]
+  
+  // Auth Relations
+  refreshTokens       RefreshToken[]
+  loginHistory        LoginHistory[]
+  emailVerifications  EmailVerification[]
+  passwordResets      PasswordReset[]
+  otps                Otp[]
+  auditLogs           AuditLog[] @relation("UserAuditLogs")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("user_account")
+}
+
+model Role {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  
+  users       User[]
+  permissions RolePermission[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("roles")
+}
+
+model Permission {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+
+  roles       RolePermission[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleId       Int
+  permissionId Int
+  
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  isRevoked Boolean  @default(false)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("refresh_tokens")
+}
+
+model LoginHistory {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ipAddress   String?
+  browser     String?
+  os          String?
+  loginTime   DateTime @default(now())
+  logoutTime  DateTime?
+  status      String   @default("Success")
+
+  @@map("login_history")
+}
+
+model EmailVerification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  otp       String?
+  expiresAt DateTime
+  isUsed    Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  
+  @@map("email_verification")
+}
+
+model PasswordReset {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  otp       String?
+  expiresAt DateTime
+  isUsed    Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@map("password_reset")
+}
+
+model Otp {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  code      String
+  purpose   String   // "LOGIN", "FORGOT_PASSWORD", "VERIFY_EMAIL"
+  expiresAt DateTime
+  isUsed    Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@map("otp")
 }
 
 model Room {
@@ -40,6 +197,31 @@ model Reservation {
   roomId Int
   room   Room @relation(fields: [roomId], references: [id])
 
+
+  reservationNumber String? @unique
+  guestProfileId Int?
+  guestProfile   GuestProfile? @relation(fields: [guestProfileId], references: [id])
+  roomType       String?
+  adults         Int      @default(1)
+  children       Int      @default(0)
+  paymentMethod  String?
+  paymentStatus  String?
+  outstandingBalance Float @default(0)
+  depositAmount  Float @default(0)
+  
+  // Verification & Registration 
+  identityVerified Boolean @default(false)
+  idDocumentType  String?
+  idDocumentUrl   String?
+  signatureUrl    String?
+  guestPhotoUrl   String?
+  verificationStatus String @default("Pending")
+  bookingSource   String @default("Walk-in")
+
+  arrivalTime    String?
+  checkInTime    DateTime?
+  checkOutTime   DateTime?
+  groupBlockId   Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -175,4 +357,483 @@ model WorkOrder {
   description          String
   dateCreated          DateTime  @default(now())
   dateCompleted        DateTime?
+}
+
+model HotelPartner {
+  id              Int       @id @default(autoincrement())
+  name            String
+  latitude        Float
+  longitude       Float
+  address         String
+  phone           String
+  email           String
+  starRating      Float
+  averageRating   Float
+  totalReviews    Int
+  basePrice       Float
+  availableRooms  Int
+  totalRooms      Int
+  description     String
+
+  amenities       HotelPartnerAmenity[]
+  rooms           HotelPartnerRoom[]
+  reviews         HotelPartnerReview[]
+  images          HotelPartnerImage[]
+  availabilities  HotelPartnerAvailability[]
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model HotelPartnerAmenity {
+  id              Int           @id @default(autoincrement())
+  name            String
+  category        String?
+  hotelId         Int
+  hotel           HotelPartner  @relation(fields: [hotelId], references: [id])
+  createdAt       DateTime      @default(now())
+}
+
+model HotelPartnerRoom {
+  id              Int           @id @default(autoincrement())
+  roomType        String
+  remainingRooms  Int
+  currentPrice    Float
+  occupancyPercent Float
+  hotelId         Int
+  hotel           HotelPartner  @relation(fields: [hotelId], references: [id])
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model HotelPartnerReview {
+  id              Int           @id @default(autoincrement())
+  reviewerName    String
+  cleanliness     Float
+  staff           Float
+  food            Float
+  location        Float
+  facilities      Float
+  comfort         Float
+  valueForMoney   Float
+  wifi            Float
+  overallScore    Float
+  hotelId         Int
+  hotel           HotelPartner  @relation(fields: [hotelId], references: [id])
+  createdAt       DateTime      @default(now())
+}
+
+model HotelPartnerImage {
+  id              Int           @id @default(autoincrement())
+  url             String
+  caption         String?
+  isPrimary       Boolean       @default(false)
+  hotelId         Int
+  hotel           HotelPartner  @relation(fields: [hotelId], references: [id])
+  createdAt       DateTime      @default(now())
+}
+
+model HotelPartnerAvailability {
+  id              Int           @id @default(autoincrement())
+  date            DateTime
+  availableRooms  Int
+  price           Float
+  hotelId         Int
+  hotel           HotelPartner  @relation(fields: [hotelId], references: [id])
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model HotelSearchHistory {
+  id              Int           @id @default(autoincrement())
+  city            String?
+  checkInDate     DateTime?
+  checkOutDate    DateTime?
+  guests          Int?
+  rooms           Int?
+  userId          Int?
+  createdAt       DateTime      @default(now())
+}
+
+model HotelRecommendationLog {
+  id              Int           @id @default(autoincrement())
+  hotelId         Int
+  recommendationScore Float
+  factors         String        
+  createdAt       DateTime      @default(now())
+}
+
+model MasterHotel {
+  id                   Int       @id @default(autoincrement())
+  hotelCode            String    @unique
+  hotelName            String
+  hotelCategory        String
+  description          String?
+  email                String
+  phoneNumber          String
+  alternatePhoneNumber String?
+  website              String?
+  
+  country              String
+  state                String
+  city                 String
+  area                 String?
+  landmark             String?
+  pincode              String
+  latitude             Float?
+  longitude            Float?
+
+  totalFloors          Int       @default(1)
+  totalRooms           Int       @default(0)
+  totalRoomTypes       Int       @default(0)
+  totalRestaurants     Int       @default(0)
+  totalBanquetHalls    Int       @default(0)
+  hasSwimmingPool      Boolean   @default(false)
+  hasSpa               Boolean   @default(false)
+  hasGym               Boolean   @default(false)
+  hasParking           Boolean   @default(false)
+  hasAirportPickup     Boolean   @default(false)
+  hasFreeWiFi          Boolean   @default(false)
+  hasPetFriendly       Boolean   @default(false)
+  hasRoomService       Boolean   @default(false)
+  hasBar               Boolean   @default(false)
+  hasConferenceHall    Boolean   @default(false)
+
+  coverImage           String?
+  galleryImages        String?   // JSON stringified array of URLs
+  hotelRating          Float     @default(4.5)
+  totalReviews         Int       @default(0)
+
+  roomTypes            MasterRoomType[]
+  restaurants          MasterRestaurant[]
+
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+}
+
+model MasterRoomType {
+  id              Int         @id @default(autoincrement())
+  roomTypeName    String
+  roomTypeCode    String
+  numberOfRooms   Int         @default(0)
+  maxOccupancy    Int         @default(2)
+  basePrice       Float
+  weekendPrice    Float?
+  extraBedPrice   Float?
+  roomSize        String?
+  bedType         String?
+  description     String?
+  amenities       String?     
+  status          String      @default("Active") 
+
+  hotelId         Int
+  hotel           MasterHotel @relation(fields: [hotelId], references: [id])
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model MasterRestaurant {
+  id              Int         @id @default(autoincrement())
+  restaurantName  String
+  restaurantType  String
+  cuisine         String?
+  foodType        String?     @default("Veg & Non-Veg")
+  seatingCapacity Int         @default(0)
+  floorNumber     String?
+  openingTime     String?
+  closingTime     String?
+  contactNumber   String?
+  status          String      @default("Active")
+
+  hotelId         Int
+  hotel           MasterHotel @relation(fields: [hotelId], references: [id])
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+// =====================================
+// FRONT DESK - GROUP CHECK-IN MODULE
+// =====================================
+
+model GroupBlock {
+  id                  Int          @id @default(autoincrement())
+  groupName           String
+  groupId             String       @unique
+  companyName         String?
+  eventName           String?
+  contactPerson       String
+  contactNumber       String
+  email               String
+  arrivalDate         DateTime
+  departureDate       DateTime
+  cutoffDate          DateTime?
+  roomsBlocked        Int
+  numberOfGuests      Int
+  roomTypesReserved   String
+  specialInstructions String?
+  status              String       @default("Draft")
+
+  guests              GroupGuest[]
+
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+}
+
+model GroupGuest {
+  id                 Int         @id @default(autoincrement())
+  guestName          String
+  confirmationNumber String      @unique
+  reservationNumber  String      @unique
+  roomType           String
+  arrivalDate        DateTime
+  departureDate      DateTime
+  numberOfNights     Int
+  roomNumber         String?
+  checkinStatus      String      @default("Pending")
+  billingType        String      @default("Guest Pay")
+  arrivalTime        String?
+  specialRequests    String?
+
+  groupBlockId       Int
+  groupBlock         GroupBlock  @relation(fields: [groupBlockId], references: [id], onDelete: Cascade)
+
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+}
+
+
+// =====================================
+// HOUSEKEEPING OPERATIONS MODULE
+// =====================================
+
+model HousekeepingStaff {
+  id              Int       @id @default(autoincrement())
+  employeeId      String    @unique
+  name            String
+  mobileNumber    String
+  email           String
+  department      String    @default("Housekeeping")
+  shift           String
+  supervisor      String?
+  assignedFloor   Int?
+  assignedWing    String?
+  experience      Int?
+  joiningDate     DateTime  @default(now())
+  status          String    @default("Active")
+  photoUrl        String?
+  
+  tasks           HousekeepingTask[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model HousekeepingTask {
+  id               Int       @id @default(autoincrement())
+  roomNumber       String
+  cleaningType     String    
+  priority         String    
+  assignedStaffId  Int?
+  estimatedTime    Int       
+  actualTime       Int?      
+  dueTime          DateTime?
+  status           String    @default("To Do") 
+  notes            String?
+  
+  startedAt        DateTime?
+  completedAt      DateTime?
+
+  assignedStaff    HousekeepingStaff? @relation(fields: [assignedStaffId], references: [id])
+  
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+// =====================================
+// RESERVATION CONTROL DESK MODULE
+// =====================================
+
+model GuestProfile {
+  id             Int       @id @default(autoincrement())
+  firstName      String
+  lastName       String
+  email          String?
+  phone          String
+  passportNumber String?
+  aadhaarNumber  String?
+  companyName    String?
+  loyaltyLevel   String    @default("Standard")
+  vipLevel       String    @default("None")
+  preferences    String?   
+  
+  reservations   Reservation[]
+  
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+
+model AuditLog {
+  id          Int      @id @default(autoincrement())
+  action      String
+  entity      String
+  entityId    Int
+  performedBy Int
+  user        User     @relation("UserAuditLogs", fields: [performedBy], references: [id])
+  details     String?
+  timestamp   DateTime @default(now())
+}
+
+
+// =====================================
+// INCIDENT MANAGEMENT MODULE
+// =====================================
+
+model Incident {
+  id                 Int       @id @default(autoincrement())
+  incidentId         String    @unique
+  title              String
+  type               String    
+  priority           String    
+  property           String?
+  floor              String?
+  roomNumber         String?
+  
+  reportedById       Int?
+  reportedBy         User?     @relation("IncidentReporter", fields: [reportedById], references: [id])
+  
+  assignedEngineerId Int?
+  assignedEngineer   User?     @relation("IncidentEngineer", fields: [assignedEngineerId], references: [id])
+  
+  assignedSecurityId Int?
+  assignedSecurity   User?     @relation("IncidentSecurity", fields: [assignedSecurityId], references: [id])
+  
+  status             String    @default("REPORTED")
+  
+  createdTime        DateTime  @default(now())
+  completedTime      DateTime?
+  targetResolutionTime DateTime?
+  
+  estimatedCost      Float     @default(0.0)
+  actualCost         Float     @default(0.0)
+
+  // RCA & Notes
+  immediateCause     String?
+  rootCause          String?
+  resolution         String?
+  preventiveAction   String?
+  engineerNotes      String?
+
+  statusHistory      IncidentStatusHistory[]
+  costs              IncidentCost[]
+  escalations        IncidentEscalation[]
+  auditLogs          IncidentAuditLog[]
+  images             IncidentImage[]
+
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
+
+model IncidentStatusHistory {
+  id            Int      @id @default(autoincrement())
+  incidentId    Int
+  incident      Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  status        String
+  changedById   Int?
+  changedBy     User?    @relation(fields: [changedById], references: [id])
+  notes         String?
+  timestamp     DateTime @default(now())
+}
+
+model IncidentCost {
+  id            Int      @id @default(autoincrement())
+  incidentId    Int
+  incident      Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  
+  labourCost    Float    @default(0.0)
+  materialCost  Float    @default(0.0)
+  partsCost     Float    @default(0.0)
+  downtimeCost  Float    @default(0.0)
+  lostRevenue   Float    @default(0.0)
+  totalCost     Float    @default(0.0)
+  
+  recordedById  Int?
+  recordedBy    User?    @relation(fields: [recordedById], references: [id])
+  timestamp     DateTime @default(now())
+}
+
+model IncidentEscalation {
+  id              Int      @id @default(autoincrement())
+  incidentId      Int
+  incident        Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  escalatedToRole String
+  reason          String?
+  timestamp       DateTime @default(now())
+}
+
+model IncidentAuditLog {
+  id            Int      @id @default(autoincrement())
+  incidentId    Int
+  incident      Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  action        String
+  oldValue      String?
+  newValue      String?
+  userId        Int?
+  user          User?    @relation(fields: [userId], references: [id])
+  ipAddress     String?
+  timestamp     DateTime @default(now())
+}
+
+model IncidentImage {
+  id            Int      @id @default(autoincrement())
+  incidentId    Int
+  incident      Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  url           String
+  fileName      String
+  fileType      String
+  uploadedById  Int?
+  uploadedBy    User?    @relation(fields: [uploadedById], references: [id])
+  timestamp     DateTime @default(now())
+}
+
+// =====================================
+// MASTER HOTEL SETTINGS
+// =====================================
+
+model MasterHotelCategory {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+}
+
+// =====================================
+// ADDRESS MASTER
+// =====================================
+
+model MasterCountry {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  code      String?
+  states    MasterState[]
+  createdAt DateTime @default(now())
+}
+
+model MasterState {
+  id        Int      @id @default(autoincrement())
+  name      String
+  countryId Int
+  country   MasterCountry @relation(fields: [countryId], references: [id])
+  cities    MasterCity[]
+  createdAt DateTime @default(now())
+  
+  @@unique([name, countryId])
+}
+
+model MasterCity {
+  id        Int      @id @default(autoincrement())
+  name      String
+  stateId   Int
+  state     MasterState @relation(fields: [stateId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([name, stateId])
 }

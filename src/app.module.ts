@@ -1,7 +1,11 @@
+import { IncidentManagementModule } from "./maintenance/incident-management/incident-management.module";
 import { Module } from '@nestjs/common';
+import { HotelDiscoveryModule } from './hotel-discovery/hotel-discovery.module';
+import { HotelMasterModule } from './hotel-master/hotel-master.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
+import { AddressModule } from './address/address.module';
 
 import { RoomsModule } from './rooms/rooms.module';
 import { ReservationModule } from './reservation/reservation.module';
@@ -18,9 +22,15 @@ import { FoliolineModule } from './folioline/folioline.module';
 import { PaymentModule } from './payment/payment.module';
 import { MaintenanceModule } from './maintenance/maintenance.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { GroupCheckinModule } from './group-checkin/group-checkin.module';
+import { ReservationDeskModule } from './reservation-desk/reservation-desk.module';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
+    HotelMasterModule,
+    HotelDiscoveryModule,
     PrismaModule,
     RoomsModule,
     ReservationModule,
@@ -36,7 +46,13 @@ import { DashboardModule } from './dashboard/dashboard.module';
     FoliolineModule,
     PaymentModule,
     MaintenanceModule,
+    IncidentManagementModule,
     DashboardModule,
+    GroupCheckinModule,
+    ReservationDeskModule,
+    AuthModule,
+    UsersModule,
+    AddressModule,
   ],
   controllers: [AppController],
   providers: [AppService],
