@@ -184,7 +184,7 @@ export const MaintenanceInventory: React.FC = () => {
           </p>
           <div className="flex items-baseline justify-between mt-2.5">
             <p className="text-3xl font-extrabold text-primary dark:text-rose-400">
-              -$4,280.00
+              -₹4,280.00
             </p>
             <span className="text-xs font-bold text-emerald-600 dark:text-emerald-500">
               +1.2% RevPAR Impact vs. Last Week

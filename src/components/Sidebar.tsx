@@ -14,7 +14,9 @@ import {
   FolderLock,
   LogOut,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  Map,
+  Building
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
@@ -31,20 +33,27 @@ export const Sidebar: React.FC = () => {
 
   const maintenanceSubItems = [
     { name: "Maintenance Queue", path: "/maintenance" },
+    { name: "Incident Mgmt", path: "/maintenance/incidents" },
     { name: "Inventory Tracker", path: "/maintenance-inventory" },
     { name: "Work Orders List", path: "/maintenance-workorders" },
   ];
 
   const secondaryMenuItems = [
+    { name: "Nearby Hotels", path: "/nearby-hotels", icon: <Map className="w-5 h-5 text-indigo-500" /> },
     { name: "Billing", path: "/billing", icon: <Receipt className="w-5 h-5" /> },
     { name: "Reservations", path: "/reservations", icon: <Calendar className="w-5 h-5" /> },
     { name: "Guests", path: "/guests", icon: <Users className="w-5 h-5" /> },
   ];
 
   const bottomMenuItems = [
+    { name: "Hotel Master", path: "/hotel-master", icon: <Building className="w-5 h-5 text-emerald-500" /> },
     { name: "Settings", path: "/settings", icon: <Settings className="w-5 h-5" /> },
     { name: "Support", path: "/support", icon: <HelpCircle className="w-5 h-5" /> },
   ];
+
+  if (user && (user.role === 'Super Admin' || user.role === 'Admin')) {
+    bottomMenuItems.unshift({ name: "Staff Directory", path: "/staff-management", icon: <Users className="w-5 h-5 text-blue-500" /> });
+  }
 
   const isActive = (path: string) => {
     if (path === "/") {
@@ -166,13 +175,13 @@ export const Sidebar: React.FC = () => {
           <div className="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-slate-800 border border-customBorder-light dark:border-[#334155] shadow-sm">
             <div className="flex items-center space-x-2.5">
               <img
-                src={user.avatar}
-                alt={user.name}
+                src={`https://ui-avatars.com/api/?name=${user.firstName}+${user.lastName}&background=random`}
+                alt={`${user.firstName} ${user.lastName}`}
                 className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-700 object-cover"
               />
               <div className="min-w-0">
                 <p className="text-xs font-bold text-customText-light dark:text-customText-dark truncate leading-tight">
-                  {user.name}
+                  {`${user.firstName} ${user.lastName}`}
                 </p>
                 <p className="text-[10px] text-customText-mutedLight dark:text-customText-mutedDark truncate">
                   {user.role}

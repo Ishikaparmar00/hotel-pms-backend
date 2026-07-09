@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { 
   Search, 
   Bell, 
@@ -25,6 +26,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onCheckInClick }) => {
   const { notifications, toasts, removeToast } = useNotifications();
   const [showNotifications, setShowNotifications] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const location = useLocation();
 
   // Toggle Dark Mode
   const toggleDarkMode = () => {
@@ -67,10 +69,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onCheckInClick }) => {
 
       {/* Center Nav Link options matching screenshot */}
       <div className="hidden lg:flex items-center space-x-6 text-xs font-semibold text-customText-mutedLight dark:text-customText-mutedDark uppercase tracking-wider ml-6">
-        <span className="text-primary dark:text-[#FB923C] border-b-2 border-primary dark:border-[#FB923C] pb-5 pt-5 cursor-pointer">All Bookings</span>
-        <span className="hover:text-customText-light dark:hover:text-white cursor-pointer transition">Pending Approvals</span>
-        <span className="hover:text-customText-light dark:hover:text-white cursor-pointer transition">Active Room Blocks</span>
-        <span className="hover:text-customText-light dark:hover:text-white cursor-pointer transition">Housekeeping Logs</span>
+        <Link to="/reservations" className={`${location.pathname.includes('/reservations') ? 'text-primary dark:text-[#FB923C] border-b-2 border-primary dark:border-[#FB923C]' : 'hover:text-customText-light dark:hover:text-white transition'} pb-5 pt-5 cursor-pointer`}>All Bookings</Link>
+        <Link to="/maintenance-workorders" className={`${location.pathname.includes('/maintenance-workorders') ? 'text-primary dark:text-[#FB923C] border-b-2 border-primary dark:border-[#FB923C]' : 'hover:text-customText-light dark:hover:text-white transition'} pb-5 pt-5 cursor-pointer`}>Pending Approvals</Link>
+        <Link to="/hotel-master" className={`${location.pathname.includes('/hotel-master') ? 'text-primary dark:text-[#FB923C] border-b-2 border-primary dark:border-[#FB923C]' : 'hover:text-customText-light dark:hover:text-white transition'} pb-5 pt-5 cursor-pointer`}>Active Room Blocks</Link>
+        <Link to="/housekeeping" className={`${location.pathname.includes('/housekeeping') ? 'text-primary dark:text-[#FB923C] border-b-2 border-primary dark:border-[#FB923C]' : 'hover:text-customText-light dark:hover:text-white transition'} pb-5 pt-5 cursor-pointer`}>Housekeeping Logs</Link>
       </div>
 
       {/* Right Control Panels */}

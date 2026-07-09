@@ -70,8 +70,7 @@ export const GuestsDashboard: React.FC = () => {
     {
       header: "Folio Balance",
       accessor: (item: any) => (
-        <span className={`font-bold ${item.balance > 0 ? "text-primary dark:text-rose-400" : "text-emerald-600"}`}>
-          ${item.balance.toFixed(2)}
+        <span className={`font-bold ${item.balance > 0 ? "text-primary dark:text-rose-400" : "text-emerald-600"}`}>₹{item.balance.toFixed(2)}
         </span>
       ),
       sortable: true,

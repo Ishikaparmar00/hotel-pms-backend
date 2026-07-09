@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { formatCurrency } from "../../common/utils/formatCurrency";
 import { MetricCard } from "../../components/ui/MetricCard";
 import { Card, CardHeader, CardTitle, CardContent } from "../../components/ui/Card";
 import { StatusBadge } from "../../components/ui/StatusBadge";
@@ -8,7 +9,7 @@ import {
   TrendingUp, 
   Users, 
   BedDouble, 
-  DollarSign, 
+  IndianRupee, 
   Percent, 
   CheckCircle,
   Bell,
@@ -134,7 +135,7 @@ export const DashboardHome: React.FC = () => {
     { id: "A1", time: "2 mins ago", msg: "Sarah Montgomery checked into Room 402", type: "checkin" },
     { id: "A2", time: "15 mins ago", msg: "Work order WO-4001 assigned to Arthur M.", type: "workorder" },
     { id: "A3", time: "30 mins ago", msg: "Room 105 clean status updated to Ready", type: "housekeeping" },
-    { id: "A4", time: "1 hr ago", msg: "Posted Laundry Charge of $45.00 to Room 402", type: "billing" },
+    { id: "A4", time: "1 hr ago", msg: "Posted Laundry Charge of ₹45.00 to Room 402", type: "billing" },
     { id: "A5", time: "2 hrs ago", msg: "Group Reservation Block Event: Alpha Tech Summit pickup rate is 80%", type: "group" },
     { id: "A6", time: "3 hrs ago", msg: "Inventory alert: Door Lock AA Batteries stock is low", type: "system" }
   ];
@@ -163,7 +164,7 @@ export const DashboardHome: React.FC = () => {
       case "checkin": return <ConciergeBell className="w-4 h-4 text-emerald-500" />;
       case "workorder": return <Wrench className="w-4 h-4 text-rose-500" />;
       case "housekeeping": return <Sparkles className="w-4 h-4 text-amber-500" />;
-      case "billing": return <DollarSign className="w-4 h-4 text-blue-500" />;
+      case "billing": return <IndianRupee className="w-4 h-4 text-blue-500" />;
       default: return <Bell className="w-4 h-4 text-gray-400" />;
     }
   };
@@ -198,16 +199,16 @@ export const DashboardHome: React.FC = () => {
         />
         <MetricCard
           title="ADR"
-          value={`$${adr}`}
+          value={formatCurrency(adr)}
           icon={<TrendingUp className="w-5 h-5" />}
-          trend="+$12.50"
+          trend="+₹12.50"
           trendDirection="up"
         />
         <MetricCard
           title="RevPAR"
-          value={`$${revpar}`}
-          icon={<DollarSign className="w-5 h-5" />}
-          trend="+$8.40"
+          value={formatCurrency(revpar)}
+          icon={<IndianRupee className="w-5 h-5" />}
+          trend="+₹8.40"
           trendDirection="up"
         />
         <MetricCard
@@ -226,8 +227,8 @@ export const DashboardHome: React.FC = () => {
         />
         <MetricCard
           title="Revenue Today"
-          value={`$${todayRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-          icon={<DollarSign className="w-5 h-5" />}
+          value={formatCurrency(todayRevenue)}
+          icon={<IndianRupee className="w-5 h-5" />}
           trend="+18% vs yesterday"
           trendDirection="up"
         />
@@ -257,9 +258,9 @@ export const DashboardHome: React.FC = () => {
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
                     <XAxis dataKey="name" stroke="#94A3B8" fontSize={11} />
-                    <YAxis stroke="#94A3B8" fontSize={11} tickFormatter={(val) => `$${val/1000}k`} />
+                    <YAxis stroke="#94A3B8" fontSize={11} tickFormatter={(val) => `${formatCurrency(val/1000)}k`} />
                     <Tooltip 
-                      formatter={(value) => [`$${value}`, "Revenue"]}
+                      formatter={(value) => [formatCurrency(value as number), "Revenue"]}
                       contentStyle={{ background: "#1E293B", color: "#F8FAFC", borderRadius: "12px", border: "none" }}
                     />
                     <Area type="monotone" dataKey="revenue" stroke="#B22222" strokeWidth={2.5} fillOpacity={1} fill="url(#colorRevenue)" />

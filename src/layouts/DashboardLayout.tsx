@@ -98,7 +98,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                     </div>
                     <div className="flex justify-between">
                       <span className="font-semibold text-customText-mutedLight">Nightly Rate:</span>
-                      <span className="font-bold text-primary dark:text-[#FB923C]">${selectedRes.rate}/night</span>
+                      <span className="font-bold text-primary dark:text-[#FB923C]">₹{selectedRes.rate}/night</span>
                     </div>
                   </div>
                 )}
@@ -133,7 +133,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                   <div className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 border border-customBorder-light dark:border-[#334155] rounded-xl">
                     <div className="flex flex-col">
                       <span className="font-bold text-customText-light dark:text-white">Incidental Deposit</span>
-                      <span className="text-[10px] text-customText-mutedLight dark:text-customText-mutedDark">Hold $150.00 credit</span>
+                      <span className="text-[10px] text-customText-mutedLight dark:text-customText-mutedDark">Hold ₹150.00 credit</span>
                     </div>
                     <button
                       onClick={() => setIncidentalAuthorized(true)}

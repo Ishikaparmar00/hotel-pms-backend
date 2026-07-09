@@ -9,7 +9,7 @@ import { FormError } from "../../components/ui/FormError";
 import { 
   Wrench, 
   AlertOctagon, 
-  DollarSign, 
+  IndianRupee, 
   Bed, 
   TrendingDown, 
   Plus, 
@@ -256,11 +256,11 @@ export const MaintenanceDashboard: React.FC = () => {
         <Card className="flex justify-between items-start">
           <div className="space-y-2">
             <p className="text-xs font-semibold text-customText-mutedLight dark:text-customText-mutedDark uppercase tracking-wider">Parts Expenditure</p>
-            <p className="text-3xl font-extrabold text-customText-light dark:text-white">$1,420</p>
-            <span className="text-xs text-customText-mutedLight dark:text-customText-mutedDark font-semibold">Budget: $5k / Mo</span>
+            <p className="text-3xl font-extrabold text-customText-light dark:text-white">₹1,420</p>
+            <span className="text-xs text-customText-mutedLight dark:text-customText-mutedDark font-semibold">Budget: ₹5k / Mo</span>
           </div>
           <div className="p-3 bg-yellow-50 dark:bg-yellow-500/10 rounded-xl text-yellow-600">
-            <DollarSign className="w-5 h-5" />
+            <IndianRupee className="w-5 h-5" />
           </div>
         </Card>
 
@@ -354,19 +354,19 @@ export const MaintenanceDashboard: React.FC = () => {
               <CardContent className="space-y-3.5 text-xs font-semibold">
                 <div className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl">
                   <span className="text-customText-mutedLight">Compressor Part (HVAC)</span>
-                  <span className="font-bold text-customText-light dark:text-white">$425.00</span>
+                  <span className="font-bold text-customText-light dark:text-white">₹425.00</span>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl">
                   <span className="text-customText-mutedLight">Labor (Emergency 4h)</span>
-                  <span className="font-bold text-customText-light dark:text-white">$320.00</span>
+                  <span className="font-bold text-customText-light dark:text-white">₹320.00</span>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl">
                   <span className="text-customText-mutedLight">Fittings & Sealants</span>
-                  <span className="font-bold text-customText-light dark:text-white">$45.50</span>
+                  <span className="font-bold text-customText-light dark:text-white">₹45.50</span>
                 </div>
                 <div className="flex justify-between items-center pt-2.5 border-t border-customBorder-light dark:border-[#334155]">
                   <span className="font-bold text-customText-light dark:text-white">Total WO Cost</span>
-                  <span className="text-sm font-extrabold text-primary dark:text-[#FB923C]">$790.50</span>
+                  <span className="text-sm font-extrabold text-primary dark:text-[#FB923C]">₹790.50</span>
                 </div>
               </CardContent>
             </Card>

@@ -513,7 +513,7 @@ export const roomDowntimes: RoomDowntime[] = [
 // Seed initial activities
 export const recentActivities: RecentActivity[] = [
   { id: "ACT-001", time: "5 mins ago", type: "checkin", message: "Sarah Montgomery checked into Room 402", status: "success", roomNumber: "402" },
-  { id: "ACT-002", time: "12 mins ago", type: "billing", message: "Posted Room Service charge of $76.00 to Room 402", status: "info", roomNumber: "402" },
+  { id: "ACT-002", time: "12 mins ago", type: "billing", message: "Posted Room Service charge of ₹76.00 to Room 402", status: "info", roomNumber: "402" },
   { id: "ACT-003", time: "25 mins ago", type: "workorder", message: "Emergency Work Order WO-4001 (Leakage) created for Room 204", status: "error", roomNumber: "204" },
   { id: "ACT-004", time: "45 mins ago", type: "housekeeping", message: "Room 302 marked Completed by Elena S.", status: "success", roomNumber: "302" },
   { id: "ACT-005", time: "1 hour ago", type: "system", message: "Inventory alert: AC Thermostats is out of stock", status: "warning" },

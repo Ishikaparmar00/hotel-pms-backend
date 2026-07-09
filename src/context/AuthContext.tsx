@@ -1,64 +1,77 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { api } from "../services/api";
 
 export interface User {
-  id: string;
-  name: string;
+  id: number;
+  firstName?: string;
+  lastName?: string;
   email: string;
-  role: "General Manager" | "Front Office Manager" | "Executive Housekeeper" | "Chief Engineer";
-  avatar: string;
+  role: string;
+  department?: string;
+  status: string;
 }
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, role: User["role"]) => Promise<void>;
+  login: (email: string, pass: string) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
+  isAuthenticated: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-const DEFAULT_USER: User = {
-  id: "USR-001",
-  name: "Alexander Vance",
-  email: "a.vance@eventhub360.com",
-  role: "General Manager",
-  avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alexander"
-};
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
+  // Validate token on mount
   useEffect(() => {
-    // Simulate reading session
-    const timer = setTimeout(() => {
-      setUser(DEFAULT_USER);
+    const token = localStorage.getItem('token');
+    if (token) {
+      api.get('/auth/profile')
+        .then(res => {
+          setUser(res as unknown as User);
+        })
+        .catch(() => {
+          localStorage.removeItem('token');
+          localStorage.removeItem('refreshToken');
+          setUser(null);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    } else {
       setIsLoading(false);
-    }, 500);
-    return () => clearTimeout(timer);
+    }
   }, []);
 
-  const login = async (email: string, role: User["role"]) => {
-    setIsLoading(true);
-    // Simulate network request
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    const name = email.split("@")[0].split(".").map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(" ") || "Staff Member";
-    setUser({
-      id: `USR-${Math.floor(100 + Math.random() * 900)}`,
-      name,
-      email,
-      role,
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`
-    });
-    setIsLoading(false);
+  const login = async (email: string, pass: string) => {
+    const res = await api.post('/auth/login', { email, password: pass }) as any;
+    localStorage.setItem('token', res.access_token);
+    if (res.refresh_token) {
+      localStorage.setItem('refreshToken', res.refresh_token);
+    }
+    setUser(res.user);
   };
 
-  const logout = () => {
-    setUser(null);
+  const logout = async () => {
+    try {
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (refreshToken) {
+        await api.post('/auth/logout', { refresh_token: refreshToken });
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
+      setUser(null);
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, logout, isLoading, isAuthenticated: !!user }}>
       {children}
     </AuthContext.Provider>
   );

@@ -14,7 +14,7 @@ import {
   Plus, 
   FileText,
   Percent, 
-  DollarSign, 
+  IndianRupee, 
   User, 
   Calendar,
   Send,
@@ -118,7 +118,7 @@ export const BillingDashboard: React.FC = () => {
     }
 
     if (amount <= 0) {
-      setAmountError("Transaction amount must be greater than $0.00.");
+      setAmountError("Transaction amount must be greater than ₹0.00.");
       isValid = false;
     } else {
       setAmountError("");
@@ -284,8 +284,7 @@ export const BillingDashboard: React.FC = () => {
                     </div>
                     <div className="flex justify-between pt-2 border-t border-customBorder-light dark:border-[#334155]">
                       <span className="font-bold text-customText-light dark:text-white">Current Balance</span>
-                      <span className="text-sm font-extrabold text-primary dark:text-[#FB923C]">
-                        ${selectedRes.balance.toFixed(2)}
+                      <span className="text-sm font-extrabold text-primary dark:text-[#FB923C]">₹{selectedRes.balance.toFixed(2)}
                       </span>
                     </div>
                   </div>
@@ -350,7 +349,7 @@ export const BillingDashboard: React.FC = () => {
               </div>
               <div className="text-right">
                 <p className="text-[10px] text-customText-mutedLight font-bold uppercase tracking-wider">Total Amount</p>
-                <p className="text-xl font-extrabold text-primary dark:text-[#FB923C]">${amount.toFixed(2)}</p>
+                <p className="text-xl font-extrabold text-primary dark:text-[#FB923C]">₹{amount.toFixed(2)}</p>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -482,8 +481,7 @@ export const BillingDashboard: React.FC = () => {
                           <td className="px-4 py-3.5 text-customText-mutedLight">{txn.date}</td>
                           <td className="px-4 py-3.5 text-customText-light dark:text-white">{txn.description}</td>
                           <td className="px-4 py-3.5 text-customText-mutedLight">{txn.reference}</td>
-                          <td className={`px-4 py-3.5 text-right font-bold ${txn.amount < 0 ? "text-emerald-600" : "text-customText-light dark:text-white"}`}>
-                            ${txn.amount.toFixed(2)}
+                          <td className={`px-4 py-3.5 text-right font-bold ${txn.amount < 0 ? "text-emerald-600" : "text-customText-light dark:text-white"}`}>₹{txn.amount.toFixed(2)}
                           </td>
                         </tr>
                       ))
@@ -549,7 +547,7 @@ export const BillingDashboard: React.FC = () => {
                       <p className="text-customText-light dark:text-white">{t.description}</p>
                       <span className="text-[9px] text-customText-mutedLight block">Ref: {t.reference} • {t.date}</span>
                     </div>
-                    <span className="font-bold">${t.amount.toFixed(2)}</span>
+                    <span className="font-bold">₹{t.amount.toFixed(2)}</span>
                   </div>
                 ))}
               </div>
@@ -559,15 +557,15 @@ export const BillingDashboard: React.FC = () => {
             <div className="border-t border-customBorder-light dark:border-[#334155] pt-4 flex flex-col items-end space-y-1.5 font-bold">
               <div className="flex justify-between w-1/2 text-customText-mutedLight">
                 <span>Subtotal Charges:</span>
-                <span>${selectedRes.balance.toFixed(2)}</span>
+                <span>₹{selectedRes.balance.toFixed(2)}</span>
               </div>
               <div className="flex justify-between w-1/2 text-customText-mutedLight">
                 <span>GST/Sales Tax:</span>
-                <span>$0.00</span>
+                <span>₹0.00</span>
               </div>
               <div className="flex justify-between w-1/2 text-primary border-t border-customBorder-light dark:border-[#334155] pt-2 text-sm font-extrabold">
                 <span>Outstanding Balance:</span>
-                <span>${selectedRes.balance.toFixed(2)}</span>
+                <span>₹{selectedRes.balance.toFixed(2)}</span>
               </div>
             </div>
 

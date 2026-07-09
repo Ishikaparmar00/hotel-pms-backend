@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { formatCurrency } from "../common/utils/formatCurrency";
+import { api } from "../services/api";
 import { 
   guests as initialGuests, 
   reservations as initialReservations, 
@@ -69,16 +71,49 @@ export const HotelProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Seed local states on mount
   useEffect(() => {
-    setGuests(initialGuests);
-    setReservations(initialReservations);
-    setHousekeepers(initialHousekeepers);
-    setHousekeepingTasks(initialHousekeepingTasks);
-    setEngineers(initialEngineers);
-    setWorkOrders(initialWorkOrders);
-    setTransactions(initialTransactions);
-    setInventoryItems(initialInventory);
-    setGroupBlocks(initialBlocks);
-    setRoomDowntimes(initialDowntimes);
+    const loadData = async () => {
+      try {
+        const [
+          guestsRes,
+          resRes,
+          houseRes,
+          engRes,
+          woRes
+        ] = await Promise.all([
+          api.get('/guest'),
+          api.get('/reservation'),
+          api.get('/housekeeping'),
+          api.get('/maintenance/engineers'),
+          api.get('/maintenance/work-orders')
+        ]);
+        
+        if (guestsRes && guestsRes.length > 0) setGuests(guestsRes); else setGuests(initialGuests);
+        if (resRes && resRes.length > 0) setReservations(resRes); else setReservations(initialReservations);
+        if (houseRes && houseRes.length > 0) setHousekeepingTasks(houseRes); else setHousekeepingTasks(initialHousekeepingTasks);
+        if (engRes && engRes.length > 0) setEngineers(engRes); else setEngineers(initialEngineers);
+        if (woRes && woRes.length > 0) setWorkOrders(woRes); else setWorkOrders(initialWorkOrders);
+        
+        // Use mock data for unimplemented parts
+        setHousekeepers(initialHousekeepers);
+        setTransactions(initialTransactions);
+        setInventoryItems(initialInventory);
+        setGroupBlocks(initialBlocks);
+        setRoomDowntimes(initialDowntimes);
+      } catch (err) {
+        console.error("API Error, falling back to mock data", err);
+        setGuests(initialGuests);
+        setReservations(initialReservations);
+        setHousekeepers(initialHousekeepers);
+        setHousekeepingTasks(initialHousekeepingTasks);
+        setEngineers(initialEngineers);
+        setWorkOrders(initialWorkOrders);
+        setTransactions(initialTransactions);
+        setInventoryItems(initialInventory);
+        setGroupBlocks(initialBlocks);
+        setRoomDowntimes(initialDowntimes);
+      }
+    };
+    loadData();
   }, []);
 
   // Check In guest from Front Desk or Quick Button
@@ -114,7 +149,7 @@ export const HotelProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       prevRes.map((res) => {
         if (res.id === resId) {
           if (res.balance > 0) {
-            addToast(`Cannot check out. Guest has an outstanding balance of $${res.balance.toFixed(2)}.`, "error");
+            addToast(`Cannot check out. Guest has an outstanding balance of ${formatCurrency(res.balance)}.`, "error");
             return res;
           }
 
@@ -179,11 +214,7 @@ export const HotelProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       })
     );
 
-    addSystemNotification(
-      `Posted ${category} charge ($${amount.toFixed(2)}) to Room ${reservation.roomNumber} folio.`,
-      amount < 0 ? "success" : "info",
-      "billing"
-    );
+    addSystemNotification(`Posted ${category} charge (${formatCurrency(amount)}) to Room ${reservation.roomNumber} folio.`, amount < 0 ? "success" : "info", "billing");
   };
 
   // Update Work Order status (Maintenance)
